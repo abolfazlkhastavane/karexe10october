@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>برنامه مطالعاتی</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="appRoot">
+  <!-- نوار عنوان سفارشی -->
+  <div id="titlebar">
+    <div class="tb-brand"><span class="dot"></span><span id="appTitleText">برنامه مطالعاتی</span></div>
+    <div class="tb-controls">
+      <button class="tb-btn" id="tbMinimize" title="کوچک کردن">–</button>
+      <button class="tb-btn" id="tbMaximize" title="بزرگ/کوچک کردن پنجره">▢</button>
+      <button class="tb-btn close" id="tbClose" title="بستن">✕</button>
+    </div>
+  </div>
+
+  <!-- صفحهٔ فعال‌سازی لایسنس -->
+  <div id="licenseScreen">
+    <div class="license-card">
+      <div class="logo-badge">🔑</div>
+      <h1>فعال‌سازی برنامه</h1>
+      <p>برای استفاده از برنامه، کد لایسنس خود را وارد کنید.</p>
+      <input type="text" id="licenseCodeInput" placeholder="XXXX-XXXX-XXXX-XXXX" dir="ltr" style="text-align:center;letter-spacing:2px">
+      <button class="btn btn-primary btn-block" id="activateBtn">فعال‌سازی</button>
+      <div class="license-msg" id="licenseMsg"></div>
+    </div>
+  </div>
+
+  <!-- صفحهٔ اصلی برنامه -->
+  <div id="mainScreen" class="hidden">
+    <header class="app-header">
+      <div class="header-title">
+        <h1 id="mainTitle">برنامه مطالعاتی</h1>
+        <span class="header-student hidden" id="headerStudent"></span>
+      </div>
+      <div class="header-menu">
+        <button class="btn btn-primary btn-sm" id="btnInfo">📋 اطلاعات اصلی</button>
+        <button class="btn btn-ghost btn-sm" id="btnSelectedSubjects">✅ دروس انتخاب‌شده</button>
+        <button class="btn btn-ghost btn-sm" id="btnLessonManager">📚 سورس‌های درسی</button>
+        <button class="btn btn-ghost btn-sm" id="btnTemplateManager">🗂️ مدیریت قالب‌ها</button>
+        <button class="btn btn-ghost btn-sm" id="btnCodeManager">🔢 کدهای درسی</button>
+        <button class="btn btn-ghost btn-sm" id="btnMotivational">💬 جملات انگیزشی</button>
+        <button class="btn btn-ghost btn-sm btn-icon" id="btnSettings" title="تنظیمات">⚙️</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- ستون راست: اطلاعات و انتخاب درس -->
+      <div class="left-col">
+        <div class="panel">
+          <h2>➕ انتخاب درس</h2>
+          <div class="field">
+            <label>انتخاب درس</label>
+            <div id="subjectComboMount"></div>
+          </div>
+          <div class="field">
+            <label>انتخاب مباحث</label>
+            <div class="list-box" id="topicsList"></div>
+          </div>
+          <div class="field">
+            <label>تعداد ساعت</label>
+            <input type="text" id="hoursInput" value="0">
+            <div class="quick-row" id="hoursQuick"></div>
+          </div>
+          <div class="field">
+            <label>تعداد تست</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" id="testsInput" style="flex:1">
+              <label class="checkbox-row"><input type="checkbox" id="addTestsCheck" checked><span>افزودن</span></label>
+            </div>
+            <div class="quick-row" id="testsQuick"></div>
+          </div>
+          <div class="field">
+            <label>تعداد تشریحی</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" id="descriptiveInput" style="flex:1">
+              <label class="checkbox-row"><input type="checkbox" id="addDescriptiveCheck" checked><span>افزودن</span></label>
+            </div>
+            <div class="quick-row" id="descriptiveQuick"></div>
+          </div>
+          <button class="btn btn-primary btn-block" id="addSubjectBtn" style="margin-top:8px">افزودن درس</button>
+        </div>
+
+      </div>
+
+      <!-- ستون چپ: جدول پیش‌نمایش -->
+      <div class="right-col">
+        <div class="panel" style="flex:1;min-height:0">
+          <div class="table-toolbar">
+            <h2 style="margin:0">🗓️ پیش‌نمایش برنامه</h2>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="hint">برای ویرایش دوبار کلیک کنید — برای انتخاب گروهی یک‌بار کلیک کنید</span>
+              <button class="btn btn-ghost btn-sm" id="btnFullscreen">⛶ تمام صفحه</button>
+            </div>
+          </div>
+          <div class="table-scroll" id="scheduleTableWrap"></div>
+
+          <div class="bottom-toolbar">
+            <button class="btn btn-ghost" id="btnImportTemplate">وارد کردن از قالب</button>
+            <button class="btn btn-ghost" id="btnExportWord">📄 خروجی به ورد</button>
+            <button class="btn btn-pdf" id="btnExportPdf">✨ خروجی لوکس PDF</button>
+            <button class="btn btn-success" id="btnEditManual">✎ ویرایش محتوای دستی</button>
+            <button class="btn btn-success" id="btnAddManual">+ افزودن دستی</button>
+            <button class="btn btn-danger" id="btnNewProgram">🗑 برنامهٔ جدید</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- نوار شناور عملیات گروهی روی خانه‌های انتخاب‌شده -->
+<div id="selectionBar" class="hidden">
+  <span class="count" id="selectionCount">0 خانه انتخاب شده</span>
+  <button id="selCopy">📋 کپی (Ctrl+C)</button>
+  <button id="selPaste">📥 پیست (Ctrl+V)</button>
+  <button id="selClear">پاک کردن</button>
+  <button id="selPlaceholder">جایگزینی محتوا</button>
+  <button id="selShift">درج و شیفت</button>
+  <button id="selTemplate">ذخیره به‌عنوان قالب</button>
+  <button id="selDeselect">لغو انتخاب</button>
+</div>
+
+<div id="fullscreenTableOverlay" class="hidden">
+  <div class="fs-header"><button class="btn btn-ghost" id="btnExitFullscreen">✕ خروج از تمام‌صفحه</button></div>
+  <div class="table-scroll" style="flex:1" id="fullscreenTableWrap"></div>
+</div>
+
+<!-- پاپ‌آپ دروس انتخاب‌شده -->
+<div id="subjectsOverlay" class="overlay hidden">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header">
+      <h2>✅ دروس انتخاب‌شده</h2>
+      <button class="x-close" id="subjectsClose" title="بستن">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+        برای جابه‌جایی و تغییر ترتیب دروس در جدول، آیتم‌ها را با ماوس کشیده و رها کنید (Drag & Drop).
+      </p>
+      <div class="subjects-list" id="subjectsListModal"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="subjectsOk">تأیید و بستن</button>
+    </div>
+  </div>
+</div>
+
+<!-- پاپ‌آپ اطلاعات اصلی: بعد از ورود خودکار باز می‌شود، با دکمهٔ هدر دوباره قابل‌باز‌شدن است -->
+<div id="infoOverlay" class="overlay hidden">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h2>📋 اطلاعات اصلی</h2>
+      <button class="x-close" id="infoClose" title="بستن">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>نام دانش‌آموز</label>
+        <input type="text" id="studentNameInput" placeholder="نام دانش‌آموز را وارد کنید">
+      </div>
+      <div class="field">
+        <label>تعداد روزها</label>
+        <input type="number" id="daysInput" min="1" max="31" value="10">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="infoOk">تأیید و بستن</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script src="js/util.js"></script>
+<script src="js/api.js"></script>
+<script src="js/combo.js"></script>
+<script src="js/table.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
