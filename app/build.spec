@@ -4,7 +4,7 @@
 #   2) خروجی در پوشهٔ dist/BarnameMotaleati ساخته می‌شود؛ کل آن پوشه را
 #      منتقل/نصب کنید (نه فقط فایل exe تنها) چون فایل‌های web/ و assets/
 #      و داده‌های قابل‌ویرایش (دروس، قالب‌ها و ...) کنار همان exe قرار می‌گیرند.
-from PyInstaller.utils.hooks import collect_all
+from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_dynamic_libs
 
 datas = [("web", "web")]
 binaries = []
@@ -19,7 +19,16 @@ for pkg in ["webview", "pythonnet", "clr_loader"]:
     except Exception:
         pass
 
-hiddenimports += ["clr", "pythonnet"]
+# اطمینان از قرارگیری کامل فایل‌های DLL و runtime مربوط به pythonnet و clr_loader
+try:
+    datas += collect_data_files("pythonnet")
+    binaries += collect_dynamic_libs("pythonnet")
+    datas += collect_data_files("clr_loader")
+    binaries += collect_dynamic_libs("clr_loader")
+except Exception:
+    pass
+
+hiddenimports += ["clr", "pythonnet", "clr_loader", "clr_loader.ffi", "clr_loader.netfx"]
 
 a = Analysis(
     ["main.py"],

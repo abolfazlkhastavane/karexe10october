@@ -8,6 +8,20 @@ import logging
 import os
 import sys
 
+# تنظیم متغیر محیطی PYTHONNET_PYDLL قبل از هر ایمپورت مرتبط با pythonnet / webview.
+# این کار مانع از بروز خطای Python.Runtime.Loader.Initialize در سیستم‌های ویندوزی بدون پایتون سیستمی می‌شود.
+if getattr(sys, "frozen", False):
+    base_dir = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    search_dirs = [base_dir, os.path.dirname(sys.executable)]
+    for d in search_dirs:
+        if os.path.exists(d):
+            for f in os.listdir(d):
+                if f.lower().startswith("python3") and f.lower().endswith(".dll"):
+                    os.environ["PYTHONNET_PYDLL"] = os.path.abspath(os.path.join(d, f))
+                    break
+            if "PYTHONNET_PYDLL" in os.environ:
+                break
+
 # اطمینان از این‌که پکیج core (کنار همین فایل) همیشه قابل import باشد،
 # چه در حالت توسعه و چه بعد از تبدیل به exe با PyInstaller.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
