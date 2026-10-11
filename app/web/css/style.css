@@ -1,0 +1,427 @@
+/* ==========================================================================
+   سیستم طراحی — برنامهٔ مطالعاتی
+   نکته: @font-face برای فونت Vazir به‌صورت پویا توسط app.js تزریق می‌شود
+   (چون مسیر پوشهٔ fonts/ کنار exe است، نه داخل بستهٔ رابط وب) — به همین
+   دلیل اینجا نیست. اگر فونت پیدا نشود، پشته‌فونت سیستم جایگزین می‌شود.
+   ========================================================================== */
+
+:root {
+  --accent: #d9822b;
+  --accent-2: #f5b041;
+  --accent-soft: rgba(217, 130, 43, .16);
+
+  --bg-0: #fdf9ed;
+  --bg-1: #ffffff;
+  --bg-2: #f8eed6;
+  --border: #e6d3a8;
+  --border-strong: #d4b87d;
+  --text-1: #281d0c;
+  --text-2: #594420;
+  --text-muted: #947a4d;
+
+  --ok: #16a34a;
+  --bad: #e11d48;
+  --warn: #d97706;
+
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 4px 12px rgba(80, 50, 10, .07);
+  --shadow: 0 12px 36px rgba(80, 50, 10, .12);
+  --shadow-lg: 0 24px 60px rgba(60, 35, 5, .20);
+
+  --titlebar-h: 40px;
+}
+
+[data-theme="dark"] {
+  --bg-0: #12131c;
+  --bg-1: #1a1c29;
+  --bg-2: #20223333;
+  --bg-2: #20223a;
+  --border: #2c2f45;
+  --border-strong: #3a3d5c;
+  --text-1: #edeefb;
+  --text-2: #b3b6d1;
+  --text-muted: #7b7fa0;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: 'Vazir', 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+  background: var(--bg-0);
+  color: var(--text-1);
+  direction: rtl;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+}
+input, textarea { -webkit-user-select: text; user-select: text; }
+::selection { background: var(--accent-soft); }
+
+button { font-family: inherit; }
+input, select, textarea { font-family: inherit; color: inherit; }
+
+.hidden { display: none !important; }
+
+/* ---------------- Scrollbars ---------------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ==========================================================================
+   نوار عنوان سفارشی (بدون ظاهر مرورگر)
+   ========================================================================== */
+#titlebar {
+  height: var(--titlebar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+  padding: 0 8px 0 0;
+  flex-shrink: 0;
+}
+#titlebar .tb-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12.5px; font-weight: 700; color: var(--text-2);
+  padding-right: 12px;
+}
+#titlebar .tb-brand .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+#titlebar .tb-controls { display: flex; -webkit-app-region: no-drag; }
+#titlebar .tb-btn {
+  width: 44px; height: var(--titlebar-h); border: none; background: transparent;
+  cursor: pointer; color: var(--text-2); display: flex; align-items: center; justify-content: center;
+  font-size: 15px; transition: background .12s;
+}
+#titlebar .tb-btn:hover { background: var(--bg-2); }
+#titlebar .tb-btn.close:hover { background: var(--bad); color: #fff; }
+
+/* ==========================================================================
+   قالب کلی
+   ========================================================================== */
+#appRoot { display: flex; flex-direction: column; height: 100vh; }
+#mainScreen { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+header.app-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; background: var(--bg-1); border-bottom: 1px solid var(--border);
+  flex-shrink: 0; gap: 12px; flex-wrap: wrap;
+}
+header.app-header h1 {
+  font-size: 16px; margin: 0; font-weight: 800;
+}
+.header-menu { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.layout {
+  flex: 1; display: grid; grid-template-columns: 380px 1fr;
+  gap: 16px; padding: 16px 20px; min-height: 0; overflow: hidden;
+}
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; overflow-y: auto; }
+}
+
+.panel {
+  background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 16px; box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column; min-height: 0;
+}
+.panel + .panel { margin-top: 16px; }
+.left-col { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; }
+.right-col { display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; }
+
+.panel h2 {
+  font-size: 13px; margin: 0 0 12px; color: var(--text-2); font-weight: 800;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ---------------- Fields ---------------- */
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 12px; color: var(--text-2); margin-bottom: 6px; font-weight: 600; }
+.field input[type="text"], .field input[type="number"], .field input[type="date"], .field textarea, .field select {
+  width: 100%; padding: 9px 11px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong);
+  background: var(--bg-0); color: var(--text-1); font-size: 13.5px; transition: border-color .12s, box-shadow .12s;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.quick-row { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+.quick-btn {
+  border: 1px solid var(--border-strong); background: var(--bg-2); color: var(--text-2);
+  border-radius: 7px; padding: 5px 10px; font-size: 11.5px; cursor: pointer; font-weight: 700;
+}
+.quick-btn:hover { border-color: var(--accent); color: var(--accent); }
+.checkbox-row { display: flex; align-items: center; gap: 6px; }
+.checkbox-row input { width: 16px; height: 16px; accent-color: var(--accent); }
+.checkbox-row span { font-size: 12px; color: var(--text-2); }
+
+/* ---------------- Buttons ---------------- */
+.btn {
+  border: none; border-radius: 10px; padding: 10px 16px; font-size: 13px; font-weight: 700;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: filter .12s, transform .05s;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(.98); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: var(--bg-2); color: var(--text-1); border: 1px solid var(--border-strong); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-danger { background: rgba(225,29,72,.1); color: var(--bad); border: 1px solid rgba(225,29,72,.25); }
+.btn-danger:hover { background: var(--bad); color: #fff; }
+.btn-success { background: rgba(22,163,74,.1); color: var(--ok); border: 1px solid rgba(22,163,74,.25); }
+.btn-success:hover { background: var(--ok); color: #fff; }
+.btn-pdf { background: linear-gradient(135deg, #8A2BE2, #4A00E0); color: #fff; }
+.btn-pdf:hover { filter: brightness(1.1); }
+.btn-sm { padding: 6px 10px; font-size: 11.5px; border-radius: 8px; }
+.btn-icon { width: 32px; height: 32px; padding: 0; justify-content: center; border-radius: 8px; }
+.btn-block { width: 100%; justify-content: center; }
+
+/* ---------------- Searchable combo ---------------- */
+.combo { position: relative; }
+.combo-input {
+  width: 100%; padding: 9px 11px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong);
+  background: var(--bg-0); color: var(--text-1); font-size: 13.5px; cursor: pointer;
+}
+.combo-panel {
+  position: absolute; top: calc(100% + 4px); right: 0; left: 0; z-index: 40;
+  background: var(--bg-1); border: 1px solid var(--border-strong); border-radius: var(--radius);
+  box-shadow: var(--shadow); max-height: 280px; display: flex; flex-direction: column; overflow: hidden;
+}
+.combo-panel input {
+  border: none; border-bottom: 1px solid var(--border); padding: 10px 12px; font-size: 13px;
+  background: var(--bg-2);
+}
+.combo-panel input:focus { outline: none; }
+.combo-list { overflow-y: auto; }
+.combo-item { padding: 9px 12px; font-size: 13px; cursor: pointer; }
+.combo-item:hover, .combo-item.active { background: var(--accent-soft); color: var(--accent); }
+
+/* ---------------- Lists (topics / subjects) ---------------- */
+.list-box {
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-0);
+  max-height: 150px; overflow-y: auto;
+}
+.list-item {
+  padding: 8px 10px; font-size: 12.5px; cursor: pointer; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+}
+.list-item:last-child { border-bottom: none; }
+.list-item:hover { background: var(--bg-2); }
+.list-item.selected { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.list-item input[type="checkbox"] { accent-color: var(--accent); pointer-events: none; }
+
+.subjects-list { flex: 1; overflow-y: auto; min-height: 80px; margin-top: 8px; }
+.subject-row {
+  display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: var(--radius-sm);
+  background: var(--bg-0); border: 1px solid var(--border); margin-bottom: 6px; font-size: 12.5px;
+  cursor: context-menu;
+}
+.subject-row .txt { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.subject-row .del {
+  width: 22px; height: 22px; border-radius: 6px; border: none; background: transparent;
+  color: var(--bad); font-weight: 900; cursor: pointer; flex-shrink: 0;
+}
+.subject-row .del:hover { background: rgba(225,29,72,.12); }
+.subject-row .merge-btn {
+  width: 22px; height: 22px; border-radius: 6px; border: none; background: transparent;
+  color: var(--text-muted); cursor: pointer; flex-shrink: 0; font-size: 13px;
+}
+.subject-row .merge-btn:hover { background: var(--accent-soft); color: var(--accent); }
+
+/* ==========================================================================
+   جدول پیش‌نمایش برنامه
+   ========================================================================== */
+.table-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px; gap: 8px; flex-shrink: 0; width: 100%;
+}
+.table-toolbar .hint { font-size: 11.5px; color: var(--text-muted); white-space: nowrap; }
+.table-scroll { flex: 1; overflow: auto; max-width: 100%; border: 1px solid var(--border); border-radius: var(--radius); min-height: 0; }
+table.schedule-table { border-collapse: collapse; width: max-content; min-width: 100%; }
+table.schedule-table thead th {
+  position: sticky; top: 0; background: var(--bg-2); color: var(--text-2); font-size: 11.5px;
+  font-weight: 800; padding: 10px 6px; border-bottom: 1px solid var(--border); z-index: 2; text-align: center;
+}
+table.schedule-table thead th.subject-col { right: 0; position: sticky; z-index: 3; min-width: 150px; }
+table.schedule-table tbody td.subject-col {
+  position: sticky; right: 0; background: var(--bg-1); z-index: 1; font-weight: 800; font-size: 12px;
+  border-left: 3px solid var(--accent); padding: 8px; min-width: 150px; text-align: center;
+}
+table.schedule-table tbody td.subject-col .hrs { font-size: 10.5px; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+table.schedule-table tbody tr:nth-child(even) td:not(.subject-col) { background: var(--bg-2); }
+table.schedule-table td.day-cell {
+  border: 1px solid var(--border); padding: 6px; min-width: 130px; max-width: 220px; vertical-align: top;
+  font-size: 11.5px; cursor: pointer; white-space: pre-wrap; line-height: 1.5; position: relative;
+  font-weight: normal;
+}
+
+.preview-badges-row { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.preview-badge { font-size: 10px; font-weight: 500; padding: 1px 5px; border-radius: 4px; display: inline-block; line-height: 1.2; }
+.preview-badge.badge-test { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border-strong); }
+.preview-badge.badge-desc { background: rgba(217, 119, 6, 0.15); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.3); }
+.preview-badge.badge-custom { background: var(--bg-2); color: var(--text-2); border: 1px solid var(--border); }
+table.schedule-table td.day-cell:hover { background: var(--accent-soft) !important; }
+table.schedule-table td.day-cell.selected { background: rgba(109,94,252,.22) !important; outline: 2px solid var(--accent); outline-offset: -2px; }
+table.schedule-table td.day-cell.manual::before {
+  content: '✎'; position: absolute; top: 3px; left: 4px; font-size: 9px; color: var(--accent); opacity: .8;
+}
+table.schedule-table td.day-cell textarea {
+  width: 100%; height: 100%; min-height: 46px; border: none; background: transparent; resize: none;
+  font-family: inherit; font-size: 11.5px; color: var(--text-1); outline: 2px solid var(--accent);
+  border-radius: 4px; padding: 2px;
+}
+table.schedule-table td.del-col { width: 40px; text-align: center; border: 1px solid var(--border); }
+table.schedule-table td.del-col button {
+  width: 26px; height: 26px; border-radius: 6px; border: none; background: transparent; color: var(--bad);
+  font-weight: 900; cursor: pointer;
+}
+table.schedule-table td.del-col button:hover { background: rgba(225,29,72,.12); }
+
+.empty-table-hint {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  color: var(--text-muted); font-size: 13px; padding: 60px 20px; text-align: center;
+}
+
+.bottom-toolbar {
+  display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--border);
+}
+
+/* ---------------- Floating selection action bar ---------------- */
+#selectionBar {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  background: var(--text-1); color: #fff; border-radius: 999px; padding: 8px 10px 8px 16px;
+  display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-lg); z-index: 60; font-size: 12.5px;
+}
+[data-theme="dark"] #selectionBar { background: var(--bg-1); border: 1px solid var(--border-strong); }
+#selectionBar .count { font-weight: 800; }
+#selectionBar button {
+  border: none; background: rgba(255,255,255,.12); color: #fff; border-radius: 999px; padding: 7px 12px;
+  font-size: 11.5px; cursor: pointer; font-weight: 700; white-space: nowrap;
+}
+#selectionBar button:hover { background: rgba(255,255,255,.22); }
+
+/* ==========================================================================
+   Modal / dialog
+   ========================================================================== */
+.overlay {
+  position: fixed; inset: 0; background: rgba(15,17,32,.55); backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center; z-index: 80; padding: 20px;
+}
+.modal {
+  background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 22px; width: 100%; max-width: 460px; box-shadow: var(--shadow-lg); max-height: 88vh;
+  display: flex; flex-direction: column;
+}
+.modal.modal-wide { max-width: 760px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.modal-header h2 { font-size: 15.5px; margin: 0; font-weight: 800; }
+.modal-header .x-close { border: none; background: transparent; font-size: 18px; cursor: pointer; color: var(--text-muted); }
+.modal-body { overflow-y: auto; flex: 1; min-height: 0; }
+.modal-actions { display: flex; gap: 10px; margin-top: 18px; flex-shrink: 0; }
+.modal-actions .btn { flex: 1; justify-content: center; }
+
+.manager-list { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.manager-list li {
+  display: flex; justify-content: space-between; align-items: center; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); font-size: 12.5px;
+}
+.manager-list li:last-child { border-bottom: none; }
+.manager-list li:hover { background: var(--bg-2); }
+.manager-list .row-btns { display: flex; gap: 6px; }
+.manager-empty { text-align: center; padding: 30px; color: var(--text-muted); font-size: 12.5px; }
+
+/* editable spreadsheet grid (lesson / template editor) */
+.grid-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.grid-wrap { overflow: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); max-height: 380px; }
+table.edit-grid { border-collapse: collapse; }
+table.edit-grid th { background: var(--bg-2); font-size: 11px; padding: 6px; border: 1px solid var(--border); color: var(--text-2); position: sticky; top: 0; }
+table.edit-grid td { border: 1px solid var(--border); padding: 0; }
+table.edit-grid td input {
+  border: none; background: transparent; padding: 7px 8px; font-size: 12px; width: 160px; color: var(--text-1);
+}
+table.edit-grid td input:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.day-fields { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; padding-left: 4px; }
+.day-fields .day-row { display: flex; align-items: center; gap: 8px; }
+.day-fields .day-row label { width: 54px; flex-shrink: 0; font-size: 11.5px; color: var(--text-muted); }
+.day-fields .day-row input { flex: 1; }
+
+.sentence-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.sentence-row input { flex: 1; }
+
+/* ---------------- Toasts ---------------- */
+#toastRoot { position: fixed; top: calc(var(--titlebar-h) + 14px); left: 50%; transform: translateX(-50%); z-index: 100; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.toast {
+  background: var(--text-1); color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 12.5px;
+  box-shadow: var(--shadow); animation: toast-in .18s ease-out; font-weight: 600;
+}
+.toast.err { background: var(--bad); }
+.toast.ok { background: var(--ok); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ==========================================================================
+   صفحهٔ فعال‌سازی لایسنس
+   ========================================================================== */
+#licenseScreen {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(1200px 700px at 20% -10%, var(--accent-soft), var(--bg-0) 55%);
+}
+.license-card {
+  width: 100%; max-width: 400px; background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-lg); text-align: center;
+}
+.license-card .logo-badge {
+  width: 56px; height: 56px; border-radius: 16px; margin: 0 auto 16px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+}
+.license-card h1 { font-size: 17px; margin: 0 0 6px; }
+.license-card p { font-size: 12.5px; color: var(--text-muted); margin: 0 0 22px; }
+.license-card input {
+  width: 100%; padding: 12px; text-align: center; letter-spacing: 1px; border-radius: 10px;
+  border: 1px solid var(--border-strong); background: var(--bg-0); font-size: 14px; margin-bottom: 12px;
+}
+.license-msg { font-size: 12px; margin-top: 12px; min-height: 16px; }
+.license-msg.err { color: var(--bad); }
+.license-msg.ok { color: var(--ok); }
+.license-footer { margin-top: 18px; font-size: 11.5px; }
+.license-footer a { color: var(--accent); cursor: pointer; text-decoration: none; }
+
+/* ---------------- Fullscreen table view ---------------- */
+#fullscreenTableOverlay {
+  position: fixed; inset: 0; background: var(--bg-0); z-index: 70; display: flex; flex-direction: column; padding: 16px;
+}
+#fullscreenTableOverlay .fs-header { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+
+.spinner {
+  width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%;
+  animation: spin .6s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Chapter selector modal styles */
+.chapter-modal-wide { max-width: 860px !important; }
+.chapter-search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.chapter-search-row input { flex: 1; min-width: 200px; }
+.chapter-groups-container { display: flex; flex-direction: column; gap: 14px; max-height: 480px; overflow-y: auto; padding-left: 4px; padding-right: 2px; }
+.chapter-group-card { background: var(--bg-0); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+.chapter-group-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; color: var(--accent); margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+.chapter-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.chapter-chip { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg-1); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; transition: all .12s; }
+.chapter-chip:hover { border-color: var(--accent); background: var(--bg-2); }
+.chapter-chip.selected { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; color: var(--accent); }
+.chapter-chip input[type="checkbox"] { accent-color: var(--accent); pointer-events: none; }
+
+/* ---------------- هدر: عنوان + چیپ دانش‌آموز ---------------- */
+.header-title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.header-student {
+  font-size: 11.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft);
+  padding: 4px 12px; border-radius: 999px;
+}
+/* ستون کناری ثابت: لیست دروس انتخاب‌شده ارتفاع محدود و اسکرول داخلی دارد */
+.left-col .subjects-list { max-height: 200px; }

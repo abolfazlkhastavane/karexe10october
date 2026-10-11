@@ -1,0 +1,76 @@
+"""
+نقطهٔ ورود برنامه.
+یک پنجرهٔ بدون‌قاب (frameless) بر پایهٔ موتور مرورگر سیستمی (WebView2 در
+ویندوز) باز می‌کند که ظاهر مرورگر (آدرس‌بار، تب و ...) در آن دیده نمی‌شود؛
+نوار عنوان و دکمه‌های کنترلی به‌طور کامل توسط رابط وب خودمان رسم می‌شوند.
+"""
+import logging
+import os
+import sys
+
+# تنظیم مسیر پایتون در هر دو حالت اجرا (عادی و فریز شده توسط PyInstaller)
+if getattr(sys, "frozen", False):
+    app_dir = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+else:
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+
+if app_dir not in sys.path:
+    sys.path.insert(0, app_dir)
+
+# تنظیم متغیر محیطی PYTHONNET_PYDLL قبل از هر ایمپورت مرتبط با pythonnet / webview.
+# این کار مانع از بروز خطای Python.Runtime.Loader.Initialize در سیستم‌های ویندوزی بدون پایتون سیستمی می‌شود.
+if getattr(sys, "frozen", False):
+    search_dirs = [app_dir, os.path.dirname(sys.executable)]
+    for d in search_dirs:
+        if os.path.exists(d):
+            for f in os.listdir(d):
+                if f.lower().startswith("python3") and f.lower().endswith(".dll"):
+                    os.environ["PYTHONNET_PYDLL"] = os.path.abspath(os.path.join(d, f))
+                    break
+            if "PYTHONNET_PYDLL" in os.environ:
+                break
+
+from core import config  # noqa: E402
+
+config.ensure_data_dirs()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filename=config.LOG_FILE,
+)
+logger = logging.getLogger("ScheduleApp")
+
+import webview  # noqa: E402  (بعد از تنظیم مسیر ایمپورت می‌شود)
+from api import Api  # noqa: E402
+
+
+def main():
+    api = Api()
+
+    index_path = os.path.join(config.WEB_DIR, "index.html")
+
+    window = webview.create_window(
+        title=config.APP_TITLE,
+        url=index_path,
+        js_api=api,
+        width=1280,
+        height=820,
+        min_size=(1000, 650),
+        frameless=True,
+        easy_drag=True,
+        resizable=True,
+        text_select=True,
+        confirm_close=False,
+    )
+    api.set_window(window)
+
+    try:
+        webview.start(debug=False)
+    except Exception as e:
+        logger.exception("خطای اصلی برنامه: %s", e)
+        raise
+
+
+if __name__ == "__main__":
+    main()

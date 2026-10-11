@@ -1,0 +1,13 @@
+# این فایل اختیاری است و فقط برای کسانی است که بعداً بخواهند
+# از Wrangler CLI هم استفاده کنند (مثلاً برای دیپلوی خودکار از GitHub Actions).
+# برای روش اصلی و ساده (دیپلوی از طریق سایت Cloudflare، بدون نصب هیچ ابزاری)
+# فقط فایل‌های worker.js و schema.sql را طبق README.md لازم دارید.
+
+name = "study-scheduler-license"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "study-scheduler-license-db"
+database_id = "PUT-YOUR-D1-DATABASE-ID-HERE"
