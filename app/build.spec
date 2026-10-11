@@ -4,11 +4,12 @@
 #   2) خروجی در پوشهٔ dist/BarnameMotaleati ساخته می‌شود؛ کل آن پوشه را
 #      منتقل/نصب کنید (نه فقط فایل exe تنها) چون فایل‌های web/ و assets/
 #      و داده‌های قابل‌ویرایش (دروس، قالب‌ها و ...) کنار همان exe قرار می‌گیرند.
+import os
 from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_dynamic_libs
 
 datas = [("web", "web")]
 binaries = []
-hiddenimports = []
+hiddenimports = ["core", "core.config", "core.schedule", "core.lessons", "core.templates", "core.table_io", "core.license_client", "core.export_pdf", "core.export_word", "api"]
 
 for pkg in ["webview", "pythonnet", "clr_loader"]:
     try:
@@ -32,7 +33,7 @@ hiddenimports += ["clr", "pythonnet", "clr_loader", "clr_loader.ffi", "clr_loade
 
 a = Analysis(
     ["main.py"],
-    pathex=[],
+    pathex=[os.path.abspath(".")],
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,

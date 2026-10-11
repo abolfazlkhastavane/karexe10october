@@ -8,11 +8,19 @@ import logging
 import os
 import sys
 
+# تنظیم مسیر پایتون در هر دو حالت اجرا (عادی و فریز شده توسط PyInstaller)
+if getattr(sys, "frozen", False):
+    app_dir = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+else:
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+
+if app_dir not in sys.path:
+    sys.path.insert(0, app_dir)
+
 # تنظیم متغیر محیطی PYTHONNET_PYDLL قبل از هر ایمپورت مرتبط با pythonnet / webview.
 # این کار مانع از بروز خطای Python.Runtime.Loader.Initialize در سیستم‌های ویندوزی بدون پایتون سیستمی می‌شود.
 if getattr(sys, "frozen", False):
-    base_dir = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
-    search_dirs = [base_dir, os.path.dirname(sys.executable)]
+    search_dirs = [app_dir, os.path.dirname(sys.executable)]
     for d in search_dirs:
         if os.path.exists(d):
             for f in os.listdir(d):
@@ -21,10 +29,6 @@ if getattr(sys, "frozen", False):
                     break
             if "PYTHONNET_PYDLL" in os.environ:
                 break
-
-# اطمینان از این‌که پکیج core (کنار همین فایل) همیشه قابل import باشد،
-# چه در حالت توسعه و چه بعد از تبدیل به exe با PyInstaller.
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core import config  # noqa: E402
 
